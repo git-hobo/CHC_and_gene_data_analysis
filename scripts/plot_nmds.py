@@ -24,6 +24,10 @@ meta_sheet = "Colors"             # e.g., "metadata" or None
 meta_sample_col = "Sample"    # column in metadata that matches row names
 meta_group_col = "Colors"      # column in metadata used to color/shape points (optional)
 
+# Plotting options
+point_size = 5
+label_font_size = 0.5
+
 # Transform choices
 use_hellinger = True          # Hellinger transform (sqrt of row-wise relative abundances)
 use_wisconsin = False         # Wisconsin double standardization (row relabund + divide by col maxima)
@@ -32,6 +36,8 @@ n_components = 2
 n_init = 16                   # multiple random starts (like metaMDS)
 random_state = 42
 max_iter = 1000
+# %%
+
 
 # -------------------------
 # Load data
@@ -85,15 +91,16 @@ if meta_sheet:
     if meta_group_col in meta.columns:
         groups = meta[meta_group_col].astype(str)
 
+# %%
 # Plot
 fig, ax = plt.subplots(figsize=(6, 5), dpi=150)
 
 if groups is None:
-    ax.scatter(coords[:, 0], coords[:, 1])
+    ax.scatter(coords[:, 0], coords[:, 1], s=point_size)
 else:
     for g, sub in pd.Series(range(len(X)), index=X.index).groupby(groups):
         ix = sub.values
-        ax.scatter(coords[ix, 0], coords[ix, 1], label=g)
+        ax.scatter(coords[ix, 0], coords[ix, 1], s=point_size, label=g)
     ax.legend(title=meta_group_col, fontsize=8)
 
 
@@ -105,8 +112,7 @@ for i, name in enumerate(X.index):
     texts.append(
         ax.text(
             coords[i,0], coords[i,1], str(name),
-            fontsize=7, zorder=3, clip_on=False,
-            bbox=dict(boxstyle='round,pad=0.15', fc='white', ec='none', alpha=0.6)
+            fontsize=label_font_size, zorder=3, clip_on=False,
         )
     )
 
@@ -115,11 +121,11 @@ adjust_text(
     texts,
     x=coords[:,0], y=coords[:,1],
     only_move={'points':'', 'text':'xy'},
-    force_text=0.8, force_points=0.2,
-    expand_text=(1.2, 1.3), expand_points=(1.1, 1.2),
+    force_text=0.1, force_points=0.1,
+    expand_text=(1, 1), expand_points=(1, 1),
     arrowprops=dict(
         arrowstyle='-', lw=0.6, alpha=0.6,
-        shrinkA=6, shrinkB=6,      # <- keeps line off the text/point
+        shrinkA=1, shrinkB=1,      # <- keeps line off the text/point
         mutation_scale=1
     ),
     ax=ax

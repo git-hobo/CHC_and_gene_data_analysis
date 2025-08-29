@@ -9,7 +9,7 @@ Created on Thu Aug 28 12:55:56 2025
 import pandas as pd
 import os
 
-excel_in = "/home/fabian-sc/Downloads/CHC_analysis_finaldraft.xlsx"
+excel_in = r"C:\Users\Nutzer\Downloads\CHC_analysis_finaldraft.xlsx"
 excel_out = os.path.join("..", "..", "data", "CHC_analysis_draft.xlsx")
 translation_file_path = os.path.join("..", "..","aux_info", "chc_code_translation.tsv")
 
