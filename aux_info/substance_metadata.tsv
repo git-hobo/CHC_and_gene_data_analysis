@@ -1,0 +1,148 @@
+Compound	Chain_Length	Is_Mixture	Backbone	Class	Contains_Unsaturated	Contains_Methylbranched	Me_Positions	Me_Count	Double_Bond_Count	Components
+C16unknownCHC	16.0	False	unknown	unknown						
+C19nAlkane	19.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C19unknownCHC	19.0	False	unknown	unknown						
+C20alkene	20.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C20nAlkane	20.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C20unknown	20.0	False	unknown	unknown						
+C20unknownCHC	20.0	False	unknown	unknown						
+C21alkene	21.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C21MonoMe3	21.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C21nAlkane	21.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C21unknown	21.0	False	unknown	unknown						
+C22nAlkane	22.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C22unknown	22.0	False	unknown	unknown						
+C22unknownCHC	22.0	False	unknown	unknown						
+C23alkene	23.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C23intMonoMe	23.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C23MonoMe3	23.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C23MonoMe5	23.0	False	saturated	methylbranched	False	True	[5]	1.0	0.0	
+C23MonoMe7	23.0	False	saturated	methylbranched	False	True	[7]	1.0	0.0	
+C23nAlkane	23.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C23unknown	23.0	False	unknown	unknown						
+C23unknownCHC	23.0	False	unknown	unknown						
+C24alkene	24.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C24DiMe5	24.0	False	saturated	methylbranched	False	True	[5, None]	2.0	0.0	
+C24intMonoMe	24.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C24MonoMe2_DiMe5	24.0	True	saturated	methylbranched	False	True				['C24MonoMe2', 'C24DiMe5']
+C24MonoMe4	24.0	False	saturated	methylbranched	False	True	[4]	1.0	0.0	
+C24nAlkane	24.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C24unknown	24.0	False	unknown	unknown						
+C24unknownCHC	24.0	False	unknown	unknown						
+C25alkene	25.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C25DiMe	25.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C25DiMe2	25.0	False	saturated	methylbranched	False	True	[2, None]	2.0	0.0	
+C25DiMe3	25.0	False	saturated	methylbranched	False	True	[3, None]	2.0	0.0	
+C25DiMe5	25.0	False	saturated	methylbranched	False	True	[5, None]	2.0	0.0	
+C25intDiMe	25.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C25intMonoMe	25.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C25MonoMe3	25.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C25MonoMe5	25.0	False	saturated	methylbranched	False	True	[5]	1.0	0.0	
+C25MonoMe7	25.0	False	saturated	methylbranched	False	True	[7]	1.0	0.0	
+C25nAlkane	25.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C25unknown	25.0	False	unknown	unknown						
+C25unknownCHC	25.0	False	unknown	unknown						
+C26alkene	26.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C26DiMe3	26.0	False	saturated	methylbranched	False	True	[3, None]	2.0	0.0	
+C26intDiMe	26.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C26intMonoMe	26.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C26MonoMe3	26.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C26MonoMe4	26.0	False	saturated	methylbranched	False	True	[4]	1.0	0.0	
+C26nAlkane	26.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C26TetraMe	26.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C26unknown	26.0	False	unknown	unknown						
+C27alkene	27.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C27DiMe3	27.0	False	saturated	methylbranched	False	True	[3, None]	2.0	0.0	
+C27DiMe5	27.0	False	saturated	methylbranched	False	True	[5, None]	2.0	0.0	
+C27DiMe7	27.0	False	saturated	methylbranched	False	True	[7, None]	2.0	0.0	
+C27intDiMe	27.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C27intMonoMe	27.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C27MonoMe3	27.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C27MonoMe3_intDiMe	27.0	True	saturated	methylbranched	False	True				['C27MonoMe3', 'C27intDiMe']
+C27MonoMe5	27.0	False	saturated	methylbranched	False	True	[5]	1.0	0.0	
+C27MonoMe7	27.0	False	saturated	methylbranched	False	True	[7]	1.0	0.0	
+C27nAlkane	27.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C27TriMe3	27.0	False	saturated	methylbranched	False	True	[3, None, None]	3.0	0.0	
+C27TriMe5	27.0	False	saturated	methylbranched	False	True	[5, None, None]	3.0	0.0	
+C27unknown	27.0	False	unknown	unknown						
+C28DiMe5	28.0	False	saturated	methylbranched	False	True	[5, None]	2.0	0.0	
+C28intDiMe	28.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C28intMonoMe	28.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C28MonoMe3	28.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C28MonoMe4	28.0	False	saturated	methylbranched	False	True	[4]	1.0	0.0	
+C28MonoMe4_intDiMe	28.0	True	saturated	methylbranched	False	True				['C28MonoMe4', 'C28intDiMe']
+C28nAlkane	28.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C28nAlkane_plusX	28.0	True	saturated	alkane	False	False				['C28nAlkane', 'C28plusX']
+C28unknownCHC	28.0	False	unknown	unknown						
+C29alkene	29.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C29diene	29.0	False	unsaturated	alkene	True	False	[]	0.0	2.0	
+C29DiMe3	29.0	False	saturated	methylbranched	False	True	[3, None]	2.0	0.0	
+C29DiMe5	29.0	False	saturated	methylbranched	False	True	[5, None]	2.0	0.0	
+C29DiMe7	29.0	False	saturated	methylbranched	False	True	[7, None]	2.0	0.0	
+C29intDiMe	29.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C29intMonoMe	29.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C29MonoMe3	29.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C29MonoMe5	29.0	False	saturated	methylbranched	False	True	[5]	1.0	0.0	
+C29nAlkane	29.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C29TriMe5	29.0	False	saturated	methylbranched	False	True	[5, None, None]	3.0	0.0	
+C29unknownCHC	29.0	False	unknown	unknown						
+C30alkene	30.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C30DiMe2	30.0	False	saturated	methylbranched	False	True	[2, None]	2.0	0.0	
+C30DiMe4	30.0	False	saturated	methylbranched	False	True	[4, None]	2.0	0.0	
+C30DiMe5	30.0	False	saturated	methylbranched	False	True	[5, None]	2.0	0.0	
+C30intDiMe	30.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C30intMonoMe	30.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C30MonoMe2	30.0	False	saturated	methylbranched	False	True	[2]	1.0	0.0	
+C30MonoMe3	30.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C30MonoMe5	30.0	False	saturated	methylbranched	False	True	[5]	1.0	0.0	
+C30nAlkane	30.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C30unknownCHC	30.0	False	unknown	unknown						
+C31alkene	31.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C31alkene_methylalkene	31.0	True	unsaturated	mixture	True	True				['C31alkene', 'C31methylalkene']
+C31diene	31.0	False	unsaturated	alkene	True	False	[]	0.0	2.0	
+C31DiMe2	31.0	False	saturated	methylbranched	False	True	[2, None]	2.0	0.0	
+C31DiMe3	31.0	False	saturated	methylbranched	False	True	[3, None]	2.0	0.0	
+C31DiMe5	31.0	False	saturated	methylbranched	False	True	[5, None]	2.0	0.0	
+C31intDiMe	31.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C31intMonoMe	31.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C31MonoMe3	31.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C31nAlkane	31.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C31TriMe2	31.0	False	saturated	methylbranched	False	True	[2, None, None]	3.0	0.0	
+C31unknown	31.0	False	unknown	unknown						
+C31unknownCHC	31.0	False	unknown	unknown						
+C32alkene	32.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C32intMonoMe	32.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C32MonoMe3	32.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C32nAlkane	32.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C32unknown	32.0	False	unknown	unknown						
+C32unknownCHC	32.0	False	unknown	unknown						
+C33alkene	33.0	False	unsaturated	alkene	True	False	[]	0.0	1.0	
+C33diene	33.0	False	unsaturated	alkene	True	False	[]	0.0	2.0	
+C33DiMe3	33.0	False	saturated	methylbranched	False	True	[3, None]	2.0	0.0	
+C33intDiMe	33.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C33intMonoMe	33.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C33MonoMe3	33.0	False	saturated	methylbranched	False	True	[3]	1.0	0.0	
+C33nAlkane	33.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C33TriMe2	33.0	False	saturated	methylbranched	False	True	[2, None, None]	3.0	0.0	
+C33unknown	33.0	False	unknown	unknown						
+C33unknownCHC	33.0	False	unknown	unknown						
+C34methylalkene	34.0	False	unsaturated	methylbranched_alkene						
+C34unknown	34.0	False	unknown	unknown						
+C35DiMe7	35.0	False	saturated	methylbranched	False	True	[7, None]	2.0	0.0	
+C35intDiMe	35.0	False	saturated	methylbranched	False	True	[None, None]	2.0	0.0	
+C35intMonoMe	35.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C35methylalkene	35.0	False	unsaturated	methylbranched_alkene						
+C35nAlkane	35.0	False	saturated	alkane	False	False	[]	0.0	0.0	
+C35unknown	35.0	False	unknown	unknown						
+C36DiMe2	36.0	False	saturated	methylbranched	False	True	[2, None]	2.0	0.0	
+C36TriMe4	36.0	False	saturated	methylbranched	False	True	[4, None, None]	3.0	0.0	
+C37intMonoMe	37.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C37unknown	37.0	False	unknown	unknown						
+C38DiMe2	38.0	False	saturated	methylbranched	False	True	[2, None]	2.0	0.0	
+C38unknown	38.0	False	unknown	unknown						
+C39intMonoMe	39.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C39unknown	39.0	False	unknown	unknown						
+C40unknown	40.0	False	unknown	unknown						
+C41intMonoMe	41.0	False	saturated	methylbranched	False	True	[None]	1.0	0.0	
+C41unknown	41.0	False	unknown	unknown						
+unknownCHC		False	saturated	alkane	False	False	[]	0.0	0.0	

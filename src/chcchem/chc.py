@@ -52,7 +52,19 @@ class CHC:
         Parse a single component token (no leading 'C<length>').
         Returns per-part facts and derived labels.
         """
-        # methyls
+        # ---- special literal: methylalkene ----
+        if re.fullmatch(r"methylalkene", part, re.I):
+            return {
+                "me_count": None,             # unknown
+                "me_positions": None,         # unknown
+                "db_count": None,             # unknown
+                "branched": True,
+                "unsaturated": True,
+                "subclass": "methylbranched_alkene",
+                "backbone": "unsaturated",
+            }
+
+        # ---- regular parsing follows ----
         mm = BRANCH_ANY.search(part)
         if mm:
             cnt = BRANCH_COUNT[mm.group("count").lower()]
@@ -62,13 +74,11 @@ class CHC:
             cnt = 0
             me_positions = []
 
-        # unsaturation
         um = UNSAT_WORD.search(part)
         db = 0 if not um else UNSAT_MAP[um.group("prefix").lower() if um.group("prefix") else None]
         branched = cnt > 0
         unsat = db > 0
 
-        # per-part subclass/backbone
         if branched and unsat:
             subclass = "methylbranched_alkene"
         elif branched:
@@ -88,6 +98,7 @@ class CHC:
             "subclass": subclass,
             "backbone": backbone,
         }
+
     # ------------ internal parse helpers ------------
     def _length(self) -> int | None:
         um = self._unknown_match()
