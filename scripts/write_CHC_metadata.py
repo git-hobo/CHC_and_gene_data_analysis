@@ -17,5 +17,4 @@ substances = list(chc_data.index)
 
 substance_metadata = {substance: CHC(substance).as_dict() for substance in substances}
 df_meta = pd.DataFrame.from_dict(substance_metadata, orient="index")
-df_meta["Chain_Length"]
 df_meta.to_csv(meta_data_table, index=False, sep="\t")

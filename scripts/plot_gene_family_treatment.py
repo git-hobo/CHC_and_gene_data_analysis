@@ -10,6 +10,7 @@ import pandas as pd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import font_manager as fm
 from pathlib import Path
 from typing import Dict, List
 
@@ -162,12 +163,16 @@ def plot_all_families_one_axes(
             x_cursor += group_width
 
     # X tick labels: "Family\nTreatment"
-    if group_centers:
-        ax.set_xticks(group_centers, [f"{fam}\n{t}" for fam, t in group_labels], rotation=0)
 
-    ax.set_xlabel("Family / Treatment")
-    ax.set_ylabel("Count")
-    ax.set_title("All families on one plot (species-colored, shared y-scale)")
+    if group_centers:
+        labels = [f"{fam}\n{t}" for fam, t in group_labels]
+        ax.set_xticks(group_centers)
+        # italic font style
+        italic_font = fm.FontProperties(style='italic')
+        ax.set_xticklabels(labels, fontproperties=italic_font, rotation=0)
+        ax.set_xlabel("Family / Treatment")
+        ax.set_ylabel("Count")
+        ax.set_title("All families on one plot (species-colored, shared y-scale)")
 
     # Grid lines
     if ystep is None:
@@ -271,6 +276,7 @@ if __name__ == "__main__":
         plt.figure(figsize=(12, 5))
         plot_family_species_colored(pivot, fam, species_colors)
         plt.tight_layout()
+        plt.savefig(os.path.join("..", "data", f"{fam}_spec.svg"))
         plt.show()
 
 
@@ -290,5 +296,5 @@ if __name__ == "__main__":
         figsize=(20, 7),
         ystep=10           # grid every 10
     )
-
+    plt.savefig(os.path.join("..", "data", "Hedychrum.svg"))
 
