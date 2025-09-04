@@ -1,3 +1,3 @@
-species	CSP_bf	CYP4G_chc	DESAT_bf	DESAT_chc	DESAT_odb	ELO_bf	ELO_chc	ELO_odb	FAS_bf	FAS_chc	Hydro_chc	OR_bf
-Hedychrum_chalybaeum	17	124	8	5	27	23	23	24	3	7	57	70
-Hedychrum_nobile	13	211	13	6	30	20	20	61	167	174	222	63
+species	CSP_bf	CYP4G_chc	DESAT_bf	DESAT_chc	DESAT_odb	ELO_bf	ELO_chc	ELO_odb	FAS_bf	FAS_chc	Hydro_chc	OBP_bf	OR_bf
+Hedychrum_chalybaeum	17	124	8	5	27	23	23	24	3	7	57	15	70
+Hedychrum_nobile	13	211	13	6	30	20	20	61	167	174	222	12	63

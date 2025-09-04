@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from sklearn.manifold import MDS
+from chcchem import *
 import matplotlib.pyplot as plt
 from adjustText import adjust_text
 import colorsys
@@ -20,7 +21,9 @@ from matplotlib.lines import Line2D
 
 # -------------------------
 # User settings
-excel_path = os.path.join("..", "data", "CHC_analysis_finaldraft_reformed.xlsx")      # your Excel file
+excel_path = os.path.join("..", "data", "CHC_analysis_finaldraft_reformed.xlsx") 
+species_path = os.path.join("..", "aux_info", "code_to_spec.tsv")     
+species_dict = dict(pd.read_csv(species_path, sep="\s+").values)
 data_sheet = "Pivot 1"         # sheet with the abundance/fraction table
 index_col = 0                 # column holding sample IDs (row names)
 # Optional: if you have metadata in another sheet with a "Sample" column that matches the index:
@@ -152,10 +155,12 @@ sc = ax.scatter(coords[:, 0], coords[:, 1], s=point_size, c=point_colors)
 # species legend (one dot per species in base hue)
 species_handles = [
     Line2D([0], [0], marker='o', linestyle='',
-           color=base_colors[sp], label=sp, markersize=6)
+           color=base_colors[sp], label=species_dict[sp], markersize=6)
     for sp in unique_species
 ]
 leg1 = ax.legend(handles=species_handles, title="Species", fontsize=8, loc="upper left")
+for text in leg1.get_texts():
+    text.set_fontstyle("italic")
 ax.add_artist(leg1)
 
 # sex legend (shade examples using the first species hue)
@@ -201,10 +206,10 @@ for ax, sx in zip(axes, sex_categories):
     if ax is axes[0]:  # only add once
         species_handles = [
             Line2D([0], [0], marker='o', linestyle='',
-                   color=base_colors[sp], label=sp, markersize=6)
+                   color=base_colors[sp], label=species_dict[sp], markersize=6)
             for sp in unique_species
         ]
-        ax.legend(handles=species_handles, title="Species", fontsize=2, loc="upper right")
+        ax.legend(handles=species_handles, title="Species", fontsize=12, loc="upper right")
 
     ax.set_title(f"Sex: {sx}")
     ax.axhline(0, lw=0.5, alpha=0.3)
@@ -232,6 +237,8 @@ ylim = (ymin - yr*pad, ymax + yr*pad)
 # friendly names (fallback to code if unseen)
 sex_names = {"W": "Worker", "F": "Female", "M": "Male"}
 
+
+
 # make + save one plot per sex present
 for sx in sex.unique():
     mask = sex == sx
@@ -245,12 +252,16 @@ for sx in sex.unique():
     )
 
     # species legend
+    
     species_handles = [
         Line2D([0], [0], marker='o', linestyle='',
-               color=base_colors[sp], label=sp, markersize=6)
+               color=base_colors[sp], label=species_dict[sp], markersize=6)
         for sp in unique_species
     ]
-    ax.legend(handles=species_handles, title="Species", fontsize=8, loc="upper right")
+    leg1 = ax.legend(handles=species_handles, title="Species", fontsize=8, loc="upper left")
+    for text in leg1.get_texts():
+        text.set_fontstyle("italic")
+    ax.add_artist(leg1)
 
     ax.set_xlim(xlim); ax.set_ylim(ylim)
     ax.set_xlabel("NMDS1"); ax.set_ylabel("NMDS2")

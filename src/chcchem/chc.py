@@ -1,13 +1,19 @@
 from __future__ import annotations
 import re
 from dataclasses import dataclass
+from typing import Iterable, Sequence, Union, Tuple
 from functools import lru_cache
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib import patheffects as pe
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from matplotlib.ticker import MultipleLocator
-from adjustText import adjust_text
+from matplotlib.ticker import PercentFormatter
 from matplotlib.transforms import Bbox
-
+from adjustText import adjust_text
+import numpy as np
 
 # ---- targeted regexes (case-insensitive) ----
 LEN_RE          = re.compile(r"^C(?P<length>\d+)", re.I)
@@ -264,7 +270,184 @@ def backbone_richness(abundance_df, metadata_df, target_bb="unsaturated", specie
     return by_species_any.sum(axis=1).rename(f"{target_bb}_richness").to_frame()
 
 
-def scatter_gene_counts(
+
+def filter_species(df: pd.DataFrame, species_list, neg: bool = False):
+    spec_pattern = '|'.join(map(re.escape, species_list))
+
+    if df.index.name == "species":
+        # --- filter on index ---
+        if neg:
+            neg_pattern = fr'^(?!.*(?:{spec_pattern})).*$'
+            return df.filter(regex=neg_pattern, axis=0)
+        else:
+            return df.filter(regex=spec_pattern, axis=0)
+
+    elif "species" in df.columns:
+        # --- filter on column ---
+        if neg:
+            mask = ~df["species"].astype(str).str.contains(spec_pattern, regex=True)
+        else:
+            mask = df["species"].astype(str).str.contains(spec_pattern, regex=True)
+        return df.loc[mask]
+
+    else:
+        raise ValueError("No species info found (neither index.name == 'species' nor a 'species' column).")
+
+
+def filter_gene_families(df,  families_list, neg=False):
+    spec_pattern = '|'.join(map(re.escape, families_list))
+    if neg:
+        neg_pattern = fr'^(?!.*(?:{spec_pattern})).*$'
+        selection_df = df.filter(regex=neg_pattern, axis=1)
+    else:
+        selection_df = df.filter(regex=spec_pattern, axis=1)
+    return selection_df
+
+
+_AxesLike = Union[Axes, Sequence[Axes], np.ndarray, Tuple[Figure, Axes], Tuple[Figure, Sequence[Axes]]]
+
+
+def _collect_axes(ret: _AxesLike | None) -> list[Axes]:
+    """Try to pull Axes from a typical plotting function return."""
+    if isinstance(ret, Axes):
+        return [ret]
+    if isinstance(ret, tuple):
+        # Common returns: (ax,), (fig, ax), (fig, axs)
+        fig, maybe_ax = ret[0], ret[-1]
+        if isinstance(maybe_ax, Axes):
+            return [maybe_ax]
+        # numpy array or list of Axes
+        if isinstance(maybe_ax, (list, tuple, np.ndarray)):
+            return [ax for ax in np.ravel(maybe_ax) if isinstance(ax, Axes)]
+    if isinstance(ret, (list, tuple, np.ndarray)):
+        return [ax for ax in np.ravel(ret) if isinstance(ax, Axes)]
+    try:
+        return [plt.gca()]
+    except Exception:
+        return []
+
+def _match_func(names: Iterable[str], mode: str, case: bool):
+    names = list(names)
+    if not case:
+        low = {n.lower() for n in names}
+        def exact(s): return s.lower() in low
+        def contains(s): 
+            ls = s.lower()
+            return any(n in ls for n in low)
+    else:
+        sset = set(names)
+        def exact(s): return s in sset
+        def contains(s): return any(n in s for n in names)
+    if mode == "exact":
+        return exact
+    if mode == "contains":
+        return contains
+    # regex (compile union)
+    flags = 0 if case else re.IGNORECASE
+    pattern = "|".join(re.escape(n) for n in names)
+    rx = re.compile(pattern, flags)
+    return lambda s: bool(rx.search(s))
+
+def _style_text(t, color, style: str, bold: bool, outline: bool, bbox_alpha: float):
+    if bold:
+        t.set_fontweight("bold")
+    if color:
+        t.set_color(color)
+    if outline:
+        # white outline to improve contrast, doesn’t change fill color
+        t.set_path_effects([pe.withStroke(linewidth=3, foreground="white")])
+    if style == "bbox":
+        t.set_bbox(dict(boxstyle="round,pad=0.25", fc=color, ec="none", alpha=bbox_alpha))
+
+def _highlight_on_axes(ax: Axes,
+                       names: Iterable[str],
+                       color: str = "#ffd30e",
+                       where: Sequence[str] = ("ticks","legend","texts"),
+                       match: str = "exact",
+                       case: bool = False,
+                       bold: bool = True,
+                       outline: bool = True,
+                       style: str = "color",
+                       bbox_alpha: float = 0.2):
+    matchf = _match_func(names, mode=match, case=case)
+    # ticks
+    if "ticks" in where:
+        for t in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
+            s = t.get_text()
+            if s and matchf(s):
+                _style_text(t, color, style, bold, outline, bbox_alpha)
+    # legend
+    if "legend" in where and ax.get_legend() is not None:
+        for t in ax.get_legend().get_texts():
+            s = t.get_text()
+            if s and matchf(s):
+                _style_text(t, color, style, bold, outline, bbox_alpha)
+    # free texts (labels placed via ax.text or annotate)
+    if "texts" in where:
+        for t in ax.texts:
+            s = t.get_text()
+            if s and matchf(s):
+                _style_text(t, color, style, bold, outline, bbox_alpha)
+
+
+def with_species_highlight(func):
+    """
+    Decorator that adds kwargs:
+      - highlight_species: list[str] | set[str] | None
+      - highlight_color: str (hex) default "#ffd30e"
+      - highlight_match: "exact" | "contains" | "regex" (default "exact")
+      - highlight_case: bool (default False)
+      - highlight_where: tuple[str] subset of {"ticks","legend","texts"}
+      - highlight_style: "color" | "bbox"   (text color vs soft colored box)
+      - highlight_bold: bool (default True)
+      - highlight_outline: bool (default True)
+      - highlight_bbox_alpha: float (default 0.2)
+    Works with functions that return ax, (fig, ax), a list/array of axes, or nothing.
+    """
+    def wrapper(*args, **kwargs):
+        names = kwargs.pop("highlight_species", None)
+        color = kwargs.pop("highlight_color", "#ffd30e")
+        match = kwargs.pop("highlight_match", "exact")
+        case  = kwargs.pop("highlight_case", False)
+        where = kwargs.pop("highlight_where", ("ticks","legend","texts"))
+        style = kwargs.pop("highlight_style", "color")  # or "bbox"
+        bold  = kwargs.pop("highlight_bold", True)
+        outline = kwargs.pop("highlight_outline", True)
+        bbox_alpha = kwargs.pop("highlight_bbox_alpha", 0.2)
+
+        ret = func(*args, **kwargs)
+
+        if names:
+            axes = _collect_axes(ret)
+            for ax in axes:
+                _highlight_on_axes(ax,
+                                   names=names,
+                                   color=color,
+                                   where=where,
+                                   match=match,
+                                   case=case,
+                                   bold=bold,
+                                   outline=outline,
+                                   style=style,
+                                   bbox_alpha=bbox_alpha)
+        return ret
+    # Copy metadata if you care (functools.wraps)
+    import functools; return functools.wraps(func)(wrapper)
+
+
+def set_style(font="Liberation Sans", size=12):
+    mpl.rcParams.update({
+        "font.family": font,
+        "font.size": size,
+        "axes.titlesize": size,
+        "axes.labelsize": size,
+        "xtick.labelsize": size-1,
+        "ytick.labelsize": size-1,
+    })
+
+
+@with_species_highlight
+def scatter_gene_counts_depr(
     df,
     xcol,
     ycol,
@@ -381,13 +564,15 @@ def _place_labels_greedy(ax, annos, max_shift_px=30, radii=(0, 6, 12, 18, 24)):
         placed_bboxes.append(chosen)
 
 
-
-def scatter_gene_counts_adv(
-    df, xcol, ycol, labelcol=None,
+@with_species_highlight
+def scatter_gene_counts(
+    df, xcol, ycol, labelcol="species",
     point_size=40, color="steelblue", label_angle=20,
     figsize=(16, 9), fontname="Liberation Sans",
     y_step=10, repel="greedy", max_shift_px=24,
     fontsize=16,   # NEW: uniform text size (default 16)
+    ax=None,
+    freeze_limits='auto',
 ):
     """
     Scatter with optional labels using a simple, predictable 'greedy' repeller.
@@ -395,7 +580,10 @@ def scatter_gene_counts_adv(
     - Points never move; axes are frozen before placing labels.
     - repel: "greedy" (default) or None.
     """
-    fig, ax = plt.subplots(figsize=figsize)
+    created = False
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+        created = True
     ax.scatter(df[xcol], df[ycol], s=point_size, c=color)
 
     # Axis labels & title
@@ -416,11 +604,6 @@ def scatter_gene_counts_adv(
     if y_step and y_step > 0:
         ax.yaxis.set_major_locator(MultipleLocator(y_step))
         ax.grid(axis="y", linestyle="-", alpha=0.25)
-
-    # Freeze limits so labels don't rescale the axes
-    xlim = ax.get_xlim(); ylim = ax.get_ylim()
-    ax.set_xlim(xlim); ax.set_ylim(ylim)
-    ax.autoscale(False)
 
     annos = []
     if labelcol is not None:
@@ -445,82 +628,91 @@ def scatter_gene_counts_adv(
             radii = [0] + radii
         _place_labels_greedy(ax, annos, max_shift_px=max_shift_px, radii=radii)
 
+    if (freeze_limits is True) or (freeze_limits == 'auto' and created):
+        xlim = ax.get_xlim(); ylim = ax.get_ylim()
+        ax.set_xlim(xlim); ax.set_ylim(ylim)
+        ax.autoscale(False)   # keeps labels from changing view
     return ax
 
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
-
+@with_species_highlight
 def plot_busco_stacked(
     df,
     name_col="species",
+    mode="simple",         # "full" or "simple"
     figsize=(10, 0.5),
     bar_height=0.7,
-    annotate_min_pct=7.5,   # annotate segment labels only if >= this percent
+    annotate_min_pct=7.5,
     title=None,
     sort_desc=True,
+    color_map=None
 ):
     """
-    Create a BUSCO-style horizontal stacked bar chart.
+    BUSCO-style horizontal stacked bars.
 
-    Expects percentage columns (either 0..100 or 0..1):
+    mode="full": uses
       - "Single copy percentage"
       - "Multi copy percentage"
       - "Fragmented percentage"
       - "Missing percentage"
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        Must contain `name_col` and the four BUSCO percentage columns.
-    name_col : str, default "species"
-        Column holding the names for each bar (species / assembly).
-    figsize : (float, float) or (width, height-per-row), default (10, 0.5)
-        If height <= 2, it's treated as "height per row" and scaled by n rows.
-        Otherwise used as an absolute figure size (inches).
-    bar_height : float, default 0.7
-        Height of each horizontal bar.
-    annotate_min_pct : float, default 7.5
-        Minimum segment size (in percent units) to draw an internal label.
-    title : str or None
-        Optional plot title.
-    sort_desc : bool, default True
-        Sort by "Single copy percentage" (descending if True, ascending if False).
+    mode="simple": uses
+      - "Complete percentage"
+      - "Fragmented percentage"
+      - "Missing percentage"
 
-    Returns
-    -------
-    fig, ax : Matplotlib figure and axes
+    Sorts by "Single copy percentage" (full) or "Complete percentage" (simple),
+    highest on top by default.
     """
-    # Required columns
-    cols = [
-        "Single copy percentage",
-        "Multi copy percentage",
-        "Fragmented percentage",
-        "Missing percentage",
-    ]
+    if color_map is None:
+        # Your palette + a color for "Complete percentage"
+        color_map = {
+            "Single copy percentage": "#2c47a0",
+            "Multi copy percentage":  "#1f9eb4",
+            "Fragmented percentage":  "#ffd30e",
+            "Missing percentage":     "#d62728",
+            "Complete percentage":    "#2c47a0",  # match single-copy hue by default
+        }
+
+    if mode not in {"full", "simple"}:
+        raise ValueError("mode must be 'full' or 'simple'")
+
+    if mode == "full":
+        cols = [
+            "Single copy percentage",
+            "Multi copy percentage",
+            "Fragmented percentage",
+            "Missing percentage",
+        ]
+        sort_col = "Single copy percentage"
+        legend_labels = ["Single", "Multi", "Fragmented", "Missing"]
+    else:  # simple
+        cols = [
+            "Complete percentage",
+            "Fragmented percentage",
+            "Missing percentage",
+        ]
+        sort_col = "Complete percentage"
+        legend_labels = ["Complete", "Fragmented", "Missing"]
+
+    # Column check
     missing = [c for c in [name_col, *cols] if c not in df.columns]
     if missing:
         raise ValueError(f"DataFrame missing required columns: {missing}")
 
-    # Work on a copy; coerce to numeric
+    # Prepare data
     work = df[[name_col, *cols]].copy()
     for c in cols:
         work[c] = pd.to_numeric(work[c], errors="coerce").fillna(0.0)
 
-    # Convert to 0..100 if values look like 0..1
-    # Heuristic: if the max across BUSCO cols <= 1.5, assume proportions
+    # Auto-scale 0..1 to 0..100 if needed
     if work[cols].to_numpy().max() <= 1.5:
         work[cols] = work[cols] * 100.0
 
-    # Sort by single-copy %
-    work = work.sort_values(
-        by="Single copy percentage",
-        ascending=not sort_desc
-    ).reset_index(drop=True)
+    # Sort for "best on top"
+    work = work.sort_values(by=sort_col, ascending=not sort_desc).reset_index(drop=True)
 
-    # Figure size handling
+    # Figure sizing
     n = len(work)
     if figsize[1] <= 2.0:
         fig = plt.figure(figsize=(figsize[0], max(2.5, n * figsize[1])))
@@ -528,44 +720,28 @@ def plot_busco_stacked(
         fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(111)
 
-    # BUSCO-like colors
-    color_map = {
-        "Single copy percentage": "#2c47a0",  # green
-        "Multi copy percentage":  "#1f9eb4",  # blue
-        "Fragmented percentage":  "#ffd30e",  # orange
-        "Missing percentage":     "#d62728",  # red
-    }
-
-    # Stack segments
     y_pos = np.arange(n)
     left = np.zeros(n)
-    handles = []
-    labels = []
+    handles, labels = [], []
 
-    for col in cols:
+    for col, label in zip(cols, legend_labels):
         vals = work[col].to_numpy()
         h = ax.barh(
             y_pos, vals, left=left, height=bar_height,
-            label=col.replace(" percentage", ""),
-            color=color_map[col], edgecolor="none"
+            label=label, color=color_map.get(col, None), edgecolor="none"
         )
         handles.append(h)
-        labels.append(col.replace(" percentage", ""))
-        # Annotate segments large enough
+        labels.append(label)
+        # Annotate segments ≥ threshold
         for i, v in enumerate(vals):
             if v >= annotate_min_pct:
-                ax.text(
-                    left[i] + v/2.0, y_pos[i],
-                    f"{v:.0f}%",
-                    va="center", ha="center", fontsize=9, color="white"
-                )
+                ax.text(left[i] + v/2.0, y_pos[i], f"{v:.0f}%", va="center", ha="center",
+                        fontsize=9, color="white")
         left += vals
 
-    # Y labels
+    # Axes cosmetics
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(work[name_col], fontsize=10)
-
-    # X axis as percent 0..100
+    ax.set_yticklabels(work[name_col], fontsize=10, style="italic")
     ax.set_xlim(0, 100)
     ax.xaxis.set_major_formatter(PercentFormatter(xmax=100))
     ax.grid(axis="x", linestyle=":", linewidth=0.7, alpha=0.6)
@@ -573,19 +749,19 @@ def plot_busco_stacked(
         ax.spines[spine].set_visible(False)
 
     # Legend
-    leg = ax.legend(
+    ax.legend(
         handles=[h[0] for h in handles], labels=labels,
         loc="lower center", bbox_to_anchor=(0.5, 1.02),
-        ncols=4, frameon=False
+        ncols=len(labels), frameon=False
     )
 
-    # Title & labels
     ax.set_xlabel("BUSCO categories (% of genes)", fontsize=11)
     if title:
         ax.set_title(title, fontsize=12)
 
     fig.tight_layout()
     return fig, ax
+
 
 # optional: a cached constructor for heavy use in filters
 @lru_cache(maxsize=4096)
